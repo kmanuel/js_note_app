@@ -1,0 +1,137 @@
+html {
+    height: 100%;
+    font-family: 'Playfair Display', serif;
+}
+
+body {
+    padding: 0;
+    border: 0;
+    margin: 0;
+    height: 100%;
+    width: 100%;
+    color: #383b3e;
+}
+
+
+.header {
+    padding-left: 15px;
+    display: flex;
+    justify-content: center;
+    background-color: #F8ECC2;
+    height: 50px;
+    border-bottom: 3px solid #333;
+}
+
+.header > * {
+    margin: 0 10px 0 0;
+    display: inline-block;
+}
+
+.header-brand {
+    flex: 1;
+}
+
+.header-buttons {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    margin-left: auto;
+}
+
+.header-buttons button {
+    width: 60px;
+    margin: 5px 15px 5px 0;
+}
+
+.content {
+    display: flex;
+    background-color: yellow;
+    height: calc(100% - 50px);
+}
+
+.side {
+    flex: 0 0 200px;
+    background-color: #F8ECC2;
+    overflow: hidden;
+    padding: 5px 15px;
+    border-right: 2px solid #333
+}
+
+.main-edit {
+    flex: 1;
+    background-color: red;
+    height: 100%;
+}
+
+.main-edit.hidden {
+    display: none;
+}
+
+.main-markdown {
+    flex: 1;
+    background-color: #faf1d1;
+    padding: 10px;
+}
+
+.note-title {
+    width: 100%;
+}
+
+.main-head {
+    width: 100%;
+    display: flex;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    height: 10%;
+    font-weight: bold;
+    font-size: 2em;
+}
+
+.main {
+    display: flex;
+    flex: 3;
+}
+
+.input-markdown-toggle {
+    position: absolute;
+}
+
+.note-body {
+    width: 100%;
+    height: 90%;
+    resize: none;
+}
+
+.note-list {
+    padding: 0;
+}
+
+.note-item {
+    display: block;
+    border: 1px solid black;
+    list-style: none;
+    margin-top: 5px;
+    height: 30px;
+    overflow: hidden;
+    background-color: #DFD3A9;
+}
+
+.note-item.active {
+    background-color: #FFFFDC;
+}
+
+.list-item-title {
+    display: inline-block;
+    width: 70%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+
+
+
+.note-item:hover {
+    background-color: #FAFAD8;
+}

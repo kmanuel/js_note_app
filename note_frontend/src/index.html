@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link href="https://fonts.googleapis.com/css?family=Playfair+Display" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+
+<header class="header">
+    <h1>Noteapp</h1>
+    <span class="header-buttons">
+        <button class="save-remote"><i class="fas fa-upload"></i></button>
+        <button class="load-remote"><i class="fas fa-download"></i></button>
+    </span>
+</header>
+<div class="content">
+    <aside class="side">
+        <h2>Notes
+            <button id="add-note-btn"><i class="fas fa-plus-square"></i></button>
+        </h2>
+        <ul class="note-list">
+
+        </ul>
+    </aside>
+    <div class="main">
+        <div class="main-markdown">
+            <div class="markdown-body"></div>
+        </div>
+        <div class="main-edit hidden">
+            <div class="main-head">
+                <input class="note-title" type="text">
+            </div>
+            <textarea id="note-body" class="note-body" name="note-body" cols="30" rows="10"></textarea>
+        </div>
+    </div>
+
+</div>
+
+<script src="js/bundle.js"></script>
+
+</body>
+</html>
