@@ -1,12 +1,19 @@
-import NoteList from './models/NoteList';
+import uniqid from 'uniqid';
+import NotebookList from './models/NotebookList';
 import * as noteListView from './views/noteListView';
 import * as noteView from './views/noteView';
+import * as notebookListView from './views/notebookListView';
 import {elements} from './views/base';
 import axios from 'axios';
 
 
-function renderNote() {
-    noteView.displayNote(state.noteList.getNote(state.activeNote));
+// state =
+// notebooks
+// activeNotebook
+// activeNote
+
+function renderNote () {
+    noteView.displayNote(getCurrentNote());
 
     let noteItems = document.querySelectorAll('.note-item');
     if (noteItems) {
@@ -16,26 +23,46 @@ function renderNote() {
     activeNoteItem.classList.add('active');
 }
 
-function renderList() {
+function renderNotebookList () {
+
+    const notebookListItems = document.querySelectorAll('.notebook-list-item');
+    if (notebookListItems) {
+        notebookListItems.forEach(n => n.classList.remove('active'));
+    }
+
+    notebookListView.renderList(state.notebookList.getNotebooks());
+
+    const activeNotebook = document.querySelector(`.notebook-list-item[data-id='${state.activeNotebook}']`);
+    if (activeNotebook) {
+        activeNotebook.classList.add('active');
+    }
+}
+
+function renderNoteList () {
     noteListView.renderList(state.noteList);
 }
 
-async function initializeNoteList() {
-    state.noteList = new NoteList();
-    await loadRemote();
-    if (state.noteList.getItems().length > 0) {
-        state.activeNote = state.noteList.getItems()[0]._id;
-    }
-
-    renderList();
-    renderNote();
+async function initializeNotebookList() {
+    state.notebookList = await new NotebookList();
+    renderNotebookList(state.notebookList.getNotebooks());
 }
 
 const addNote = () => {
-    const newNote = state.noteList.addNote('title goes here', 'body goes here');
+    const newNote = getCurrentNotebook().addNote('', '');
     state.activeNote = newNote.id;
-    renderList();
+    renderNoteList();
     renderNote();
+};
+
+const addNotebook = () => {
+    const notebookTitle = window.prompt('Enter a title for the new notebook!');
+    console.log('creating new notebook with title', notebookTitle);
+    state.notebookList
+        .addNotebook(notebookTitle)
+        .then((notebook) => {
+            console.log('created notebook', notebook);
+            initializeNotebookList();
+        });
 };
 
 const handleNoteClick = (evt) => {
@@ -48,57 +75,89 @@ const handleNoteClick = (evt) => {
     renderNote();
 };
 
+const handleNotebookListClick = (evt) => {
+    const id = evt.target.closest('.notebook-list-item').dataset.id;
+    if (id) {
+        state.activeNotebook = id;
+        renderNotebookList();
+
+        state.noteList = state.notebookList.getNotebook(state.activeNotebook).getNotes();
+        console.log('set noteList to', state.noteList);
+        renderNoteList();
+    }
+};
+
 const saveCurrentNote = () => {
     const newTitle = elements.noteTitle.value;
     const newBody = elements.noteBody.value;
 
-    state.noteList.udpateNote(state.activeNote, newTitle, newBody);
+    getCurrentNotebook().udpateNote(state.activeNote, newTitle, newBody);
 
-    renderList();
+    renderNoteList();
 };
 
 const updateMarkdown = () => {
+    const currentNote = getCurrentNote();
+    noteView.renderNoteMarkdown(currentNote);
+};
+
+const getCurrentNote = () => {
     let noteId = state.activeNote;
-    let note = state.noteList.getNote(noteId);
-    noteView.renderNoteMarkdown(note);
+    const currentNotebook = getCurrentNotebook();
+    for (let note of currentNotebook.getNotes()) {
+        if (note._id === noteId) {
+            return note;
+        }
+    }
+};
+
+const getCurrentNotebook = () => {
+    return state.notebookList.getNotebook(state.activeNotebook);
 };
 
 const deleteNote = (id) => {
     axios.delete(`http://localhost:3000/note/${id}`, {});
 
-    state.noteList.deleteNote(id);
+    state.notebookList.deleteNote(id);
 
     if (state.activeNote === id) {
         state.activeNote = undefined;
     }
 
-    noteListView.renderList(state.noteList);
+    noteListView.renderList(state.notebookList);
     renderNote();
 };
 
 const loadRemote = async() => {
-    const res = await axios(`http://localhost:3000/note`);
-    state.noteList.notes = res.data.notes;
-    renderList();
-    return state.noteList.notes;
+    // const res = await axios(`http://localhost:3000/note`);
+    // state.notebookList.notes = res.data.notes;
+    // renderNoteList();
+    // return state.notebookList.notes;
 };
 
 const saveRemote = () => {
-    axios
-        .post('http://localhost:3000/notes', {
-            notes: state.noteList.getItems()
-        })
-        .then((res) => {
-            loadRemote();
-        })
-        .catch((err) => {
-            console.log('error sending notes to remote');
+    state.notebookList.getNotebooks()
+        .forEach(notebook => {
+            axios.post(`http://localhost:3000/notebook/${notebook._id}`, notebook);
         });
+
+    // axios
+    //     .post('http://localhost:3000/notes', {
+    //         notes: state.notebookList.getItems()
+    //     })
+    //     .then((res) => {
+    //         loadRemote();
+    //     })
+    //     .catch((err) => {
+    //         console.log('error sending notes to remote');
+    //     });
 };
 
 function registerListeners() {
     elements.addNoteBtn.addEventListener('click', addNote);
+    elements.addNotebookBtn.addEventListener('click', addNotebook);
     elements.noteList.addEventListener('click', handleNoteClick);
+    elements.notebookList.addEventListener('click', handleNotebookListClick);
     elements.noteTitle.addEventListener('blur', saveCurrentNote);
     elements.noteTitle.addEventListener('keyup', saveCurrentNote);
     elements.noteBody.addEventListener('blur', saveCurrentNote);
@@ -111,9 +170,11 @@ function registerListeners() {
 
 function initialize() {
     registerListeners();
-    initializeNoteList();
+    initializeNotebookList();
 }
 
 
 const state = {};
 initialize();
+
+window.state = state;

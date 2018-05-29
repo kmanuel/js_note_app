@@ -1,8 +1,10 @@
 import uniqid from 'uniqid';
 
-export default class NoteList {
-    constructor() {
-        this.notes = [];
+export default class Notebook {
+    constructor (notebookDto) {
+        this._id = notebookDto._id;
+        this.title = notebookDto.title;
+        this.notes = notebookDto.notes;
     }
 
     addNote(title, body) {
@@ -37,7 +39,7 @@ export default class NoteList {
         return this.notes.filter(n => n._id === noteId)[0];
     }
 
-    getItems() {
+    getNotes() {
         return this.notes;
     }
 

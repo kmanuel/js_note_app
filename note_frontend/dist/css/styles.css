@@ -110,11 +110,11 @@ body {
     resize: none;
 }
 
-.note-list {
+.note-list, .notebook-list {
     padding: 0;
 }
 
-.note-item {
+.note-item, .notebook-list-item {
     display: block;
     border: 1px solid black;
     list-style: none;
@@ -124,7 +124,7 @@ body {
     background-color: #DFD3A9;
 }
 
-.note-item.active {
+.note-item.active, .notebook-list-item.active {
     background-color: #FFFFDC;
 }
 

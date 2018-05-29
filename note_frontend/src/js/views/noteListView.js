@@ -10,9 +10,8 @@ const renderListItem = (item) => `
 </li>
 `;
 
-export const renderList = (list) => {
+export const renderList = (notes) => {
     elements.noteList.innerHTML = '';
 
-    const items = list.getItems().map(renderListItem);
-    items.forEach(item => elements.noteList.insertAdjacentHTML('beforeend', item));
+    notes.forEach(note => elements.noteList.insertAdjacentHTML('beforeend', renderListItem(note)));
 };

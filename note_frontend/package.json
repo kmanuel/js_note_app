@@ -20,6 +20,7 @@
   },
   "scripts": {
     "dev": "webpack --mode development",
+    "build": "webpack --mode production",
     "start": "webpack-dev-server --mode development --host 0.0.0.0 --ineline --content-base .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
