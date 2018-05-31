@@ -77,7 +77,6 @@ const saveNote = (note) => {
     return new Promise((resolve, reject) => {
         const _id = note._id;
         if (_id && ObjectID.isValid(_id)) {
-            console.log('updating existing note');
             Note.findOneAndUpdate({_id}, note)
                 .then((doc) => resolve(doc))
                 .catch((err) => {

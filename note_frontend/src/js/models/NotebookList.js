@@ -36,7 +36,6 @@ export default class NotebookList {
                 body: ''
             };
             const notebook = new Notebook(localNotebookDto);
-            console.log('saving new notebook', notebook);
             return await axios.post(`${backendUrl}/notebook`, notebook);
         } catch (err) {
             console.log(err);
