@@ -1,7 +1,7 @@
 import {elements} from './base';
 
-const renderNotebookListItem = (notebookItem) => {
-    const html = `<li class="notebook-list-item" data-id="${notebookItem._id}">${notebookItem.title}</li>`;
+const renderNotebookListItem = (notebookItem, idx) => {
+    const html = `<li class="notebook-list-item" data-id="${notebookItem._id}" data-tab-item-id="${idx}">${notebookItem.title}</li>`;
     elements.notebookList.insertAdjacentHTML('beforeend', html);
 };
 

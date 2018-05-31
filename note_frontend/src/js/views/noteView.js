@@ -30,4 +30,6 @@ export const renderNoteMarkdown = () => {
 
 export const toggleMarkdown = () => {
     document.querySelector('.main-edit').classList.toggle('hidden');
+    document.querySelectorAll('[data-tab-id="0"], [data-tab-id="1"]').forEach(e => e.classList.toggle('hidden'));
+    elements.noteTitle.focus();
 };

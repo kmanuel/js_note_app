@@ -1,4 +1,5 @@
-import uniqid from 'uniqid';
+import axios from 'axios';
+import {backendUrl} from './remoteConstants';
 
 export default class Notebook {
     constructor (notebookDto) {
@@ -9,14 +10,20 @@ export default class Notebook {
 
     addNote(title, body) {
         const note = {
-            _id: uniqid(),
             title,
             body,
             created: new Date().getTime()
         };
 
-        this.notes.push(note);
-        return note;
+        return axios.post(`${backendUrl}/note`, note)
+            .then((doc) => {
+                const newNote = doc.data;
+                this.notes.push(newNote);
+                return newNote;
+            })
+            .catch((err) => {
+                console.log(err);
+            });
     }
 
 
@@ -31,6 +38,7 @@ export default class Notebook {
             if (note._id === noteId) {
                 note.title = newTitle;
                 note.body = newBody;
+                return;
             }
         }
     }

@@ -77,6 +77,7 @@ const saveNote = (note) => {
     return new Promise((resolve, reject) => {
         const _id = note._id;
         if (_id && ObjectID.isValid(_id)) {
+            console.log('updating existing note');
             Note.findOneAndUpdate({_id}, note)
                 .then((doc) => resolve(doc))
                 .catch((err) => {
@@ -84,6 +85,8 @@ const saveNote = (note) => {
                     reject(err);
                 });
         } else {
+            console.log('new note found');
+            delete note['local_id'];
             delete note['_id'];
             new Note(note)
                 .save()
@@ -118,6 +121,7 @@ app.post('/note', (req, res) => {
 app.get('/notebook', (req, res) => {
     Notebook
         .find()
+        .populate('notes')
         .then((doc) => res.send(doc))
         .catch((err) => sendError(res, err, 500));
 });
@@ -159,10 +163,22 @@ app.post('/notebook', (req, res) => {
 
 app.put('/notebook/:id', (req, res) => {
     const notebook = req.body;
-    Notebook
-        .update(notebook._id, notebook)
-        .then((doc) => res.send(doc))
-        .catch((err) => res.sendStatus(500));
+    const notebookId = req.params.id;
+
+    if (!ObjectID.isValid(notebookId)) {
+        res.sendStatus(404);
+        return;
+    }
+
+    Promise
+        .all(notebook.notes.map(saveNote))
+        .then((values) => {
+            Notebook
+                .update({_id: notebookId}, notebook)
+                .then((doc) => res.send(doc))
+                .catch((err) => sendError(res, err, 500));
+        });
+
 });
 
 app.post('/notebook/:notebookId/note', (req, res) => {

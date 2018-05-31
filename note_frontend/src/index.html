@@ -17,25 +17,24 @@
     <h1>Noteapp</h1>
     <span class="header-buttons">
         <button class="save-remote"><i class="fas fa-upload"></i></button>
-        <button class="load-remote"><i class="fas fa-download"></i></button>
     </span>
 </header>
 <div class="content">
-    <aside class="side">
+    <aside class="side" data-tab-id="0">
         <h2>Notebooks
             <button id="add-notebook-btn"><i class="fas fa-plus-square"></i></button>
         </h2>
         <ul class="notebook-list">
         </ul>
     </aside>
-    <aside class="side">
+    <aside class="side" data-tab-id="1">
         <h2>Notes
             <button id="add-note-btn"><i class="fas fa-plus-square"></i></button>
         </h2>
         <ul class="note-list">
         </ul>
     </aside>
-    <div class="main">
+    <div class="main" data-tab-id="2">
         <div class="main-markdown">
             <div class="markdown-body"></div>
         </div>

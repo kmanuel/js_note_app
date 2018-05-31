@@ -64,7 +64,7 @@ body {
     height: 100%;
 }
 
-.main-edit.hidden {
+.hidden {
     display: none;
 }
 
@@ -78,6 +78,10 @@ body {
 
 .note-title {
     width: 100%;
+}
+
+.active-tab {
+    /*border: 3px solid red;*/
 }
 
 .main-head {
@@ -136,7 +140,9 @@ body {
     white-space: nowrap;
 }
 
-
+.active-tab-item {
+    border: 3px solid green;
+}
 
 
 .note-item:hover {
