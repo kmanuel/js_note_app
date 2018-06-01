@@ -2,7 +2,9 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const {Note} = require('./models/Note');
 const {Notebook} = require('./models/Notebook');
+const {User} = require('./models/User');
 const {ObjectID} = require('mongodb');
+const {authenticate} = require('./middleware/authenticate');
 
 const app = express();
 const port = 3000;
@@ -22,6 +24,7 @@ app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, DELETE, PUT, PATCH');
     res.header('Access-Control-Allow-Headers', 'Origin, X-Request-With, Content-Type, Accept');
+    res.header('Access-Control-Expose-Headers', 'x-auth');
     next();
 });
 
@@ -214,6 +217,40 @@ app.post('/notebook/:notebookId/note', (req, res) => {
         });
 
 });
+
+app.post('/user', (req, res) => {
+    const email = req.body.email;
+    const password = req.body.password;
+
+    const user = new User({email, password});
+    user.save()
+        .then((user) => user.generateAuthToken())
+        .then((token) => res.header('x-auth', token).send(user))
+        .catch((err) => sendError(res, err, 500));
+});
+
+app.get('/user/me', authenticate, (req, res) => {
+    res.send(req.user);
+});
+
+app.post('/user/token', (req, res) => {
+    const email = req.body.email;
+    const password = req.body.password;
+
+    User.findOne({
+        email
+    }).then((user) => {
+        console.log('checking if pw matches');
+        user.passwordMatches(password);
+        console.log('result is ', user);
+        return user;
+    }).then((user) => {
+        return user.generateAuthToken();
+    }).then((token) => {
+        res.header('x-auth', token).sendStatus(200);
+    }).catch((err) => sendError(res, err, 401));
+});
+
 
 app.listen(3000, () => {
     console.log(`started app on port ${port}`);

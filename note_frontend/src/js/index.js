@@ -11,11 +11,9 @@ async function initializeNotebookList() {
     renderer.render(state);
 }
 
-
 /**
  * Note
  */
-
 const addNote = () => {
     getCurrentNotebook().addNote('title', 'body')
         .then((newNote) => {
@@ -156,6 +154,7 @@ const handleKeyDown = (evt) => {
     function isKeyPressed(code) {
         return keyPressState.pressed.indexOf(code) != -1;
     }
+
     const moveFocusLeft = () => {
         const activeTab = state.activeTab;
         state.activeTab = Math.max(0, activeTab - 1);
@@ -201,7 +200,7 @@ const handleKeyDown = (evt) => {
         } else if (state.activeTab === 1) {
 
         }
-    }
+    };
 
     keyPressState.pressed = keyPressState.pressed.filter(key => key !== evt.keyCode);
     keyPressState.pressed.push(evt.keyCode);
@@ -248,6 +247,45 @@ const toggleEditView = () => {
     renderer.render(state);
 };
 
+
+/**
+ * Login
+ */
+
+const toggleLoginView = () => {
+    elements.loginView.classList.toggle('hidden');
+};
+
+const submitLogin = (evt) => {
+    evt.preventDefault();
+
+    const email = elements.loginEmailInput.value;
+    const password = elements.loginPasswordInput.value;
+
+    const loginRequest = {
+        email, password
+    };
+
+    axios
+        .post('http://localhost:3000/user/token', loginRequest)
+        .then((res) => {
+            const authToken = res.headers['x-auth'];
+            if (authToken) {
+                const expirationDate = new Date();
+                const days = 1;
+                expirationDate.setTime(expirationDate.getTime() + (days*24*60*60*1000));
+                document.cookie = `x-auth=${authToken}; expires=${expirationDate.toUTCString()}; path=/`
+                state.authToken = authToken;
+                toggleLoginView();
+            } else {
+                Promise.reject();
+            }
+        })
+        .catch((err) => {
+            console.log(err);
+        });
+};
+
 function registerListeners() {
     elements.addNoteBtn.addEventListener('click', addNote);
     elements.addNotebookBtn.addEventListener('click', addNotebook);
@@ -261,6 +299,8 @@ function registerListeners() {
     elements.noteBody.addEventListener('keyup', updateMarkdown);
     elements.saveRemoteBtn.addEventListener('click', saveRemote);
     elements.markdownArea.addEventListener('dblclick', toggleEditView);
+    elements.loginForm.addEventListener('submit', submitLogin);
+    elements.loginBtn.addEventListener('click', toggleLoginView);
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
 }
@@ -289,14 +329,19 @@ const getCurrentNotebook = () => {
     return state.notebookList.getNotebook(state.activeNotebook);
 };
 
+const getCookie = (name) => {
+    return document.cookie.split(name + "=")[1];
+}
+
 const state = {
     activeNote: 0,
     activeNotebook: 0,
     activeTab: 0,
     activeTabItem: 0,
-    inEditView: false
+    inEditView: false,
+    authToken: getCookie('x-auth')
 };
 
+window.state = state;
+
 initialize();
-
-

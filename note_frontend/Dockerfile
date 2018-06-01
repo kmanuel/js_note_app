@@ -1,4 +1,2 @@
-FROM node
-COPY . .
-EXPOSE 3000
-ENTRYPOINT ["npm", "start"]
+FROM nginx:alpine
+COPY dist/ /usr/share/nginx/html/

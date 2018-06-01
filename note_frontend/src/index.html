@@ -18,8 +18,23 @@
     <span class="header-buttons">
         <button class="save-remote"><i class="fas fa-upload"></i></button>
     </span>
+    <span>
+        <button id="login-btn">Login</button>
+    </span>
 </header>
 <div class="content">
+    <div class="login-view hidden">
+        <form id="login-form">
+            <label for="login-email">Email: </label>
+            <input id="login-email" type="text">
+
+            <label for="login-password">Password: </label>
+            <input id="login-password" type="password">
+
+            <button>Login</button>
+        </form>
+    </div>
+
     <aside class="side" data-tab-id="0">
         <h2>Notebooks
             <button id="add-notebook-btn"><i class="fas fa-plus-square"></i></button>
