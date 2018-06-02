@@ -6,7 +6,12 @@ const Notebook = mongoose.model('Notebook', {
         required: true,
         minlength: 1
     },
-    notes: [{type: mongoose.Schema.Types.ObjectId, ref: 'Note'}]
+    notes: [{
+        type: mongoose.Schema.Types.ObjectId, ref: 'Note'
+    }],
+    creator: {
+        type: mongoose.Schema.Types.ObjectId, ref: 'User'
+    }
 });
 
 module.exports = {

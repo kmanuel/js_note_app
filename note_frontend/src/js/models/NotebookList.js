@@ -8,12 +8,13 @@ const toNotebook = (notebookDto) => {
 };
 
 export default class NotebookList {
-    constructor() {
+    constructor(authToken) {
         // fetch notebooks from remote
         this.notebooks = [];
+        this.authToken = authToken;
 
         return new Promise((resolve, reject) => {
-            axios(`${backendUrl}/notebook`)
+            axios.get(`${backendUrl}/notebook`, { headers: { 'x-auth': authToken }})
                 .then((res) => {
                         console.log(res.data);
                         this.notebooks = res.data
@@ -36,7 +37,7 @@ export default class NotebookList {
                 body: ''
             };
             const notebook = new Notebook(localNotebookDto);
-            return await axios.post(`${backendUrl}/notebook`, notebook);
+            return await axios.post(`${backendUrl}/notebook`, notebook, { headers: {'x-auth': this.authToken}});
         } catch (err) {
             console.log(err);
         }

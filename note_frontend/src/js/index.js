@@ -7,7 +7,7 @@ import * as renderer from './renderer';
 
 
 async function initializeNotebookList() {
-    state.notebookList = await new NotebookList();
+    state.notebookList = await new NotebookList(state.authToken);
     renderer.render(state);
 }
 
@@ -47,7 +47,7 @@ const saveCurrentNote = () => {
 };
 
 const deleteNote = (id) => {
-    axios.delete(`http://localhost:3000/note/${id}`, {});
+    axios.delete(`http://localhost:3000/note/${id}`, authHeaders());
 
     state.notebookList.deleteNote(id);
 
@@ -81,7 +81,7 @@ const deleteNotebook = () => {
     const activeNotebook = state.notebookList.getNotebook(state.activeNotebook);
     activeNotebook.getNotes().forEach(n => deleteNote(n._id));
 
-    axios.delete(`http://localhost:3000/notebook/${notebook._id}`)
+    axios.delete(`http://localhost:3000/notebook/${notebook._id}`, authHeaders())
         .then((res) => {
             renderer.render(this.state);
         })
@@ -106,7 +106,7 @@ const handleNotebookListClick = (evt) => {
 const saveRemote = () => {
     state.notebookList.getNotebooks()
         .forEach(notebook => {
-            axios.put(`http://localhost:3000/notebook/${notebook._id}`, notebook);
+            axios.put(`http://localhost:3000/notebook/${notebook._id}`, notebook, authHeaders());
         });
 };
 
@@ -267,7 +267,7 @@ const submitLogin = (evt) => {
     };
 
     axios
-        .post('http://localhost:3000/user/token', loginRequest)
+        .post('http://localhost:3000/user/token', loginRequest, authHeaders())
         .then((res) => {
             const authToken = res.headers['x-auth'];
             if (authToken) {
@@ -276,6 +276,7 @@ const submitLogin = (evt) => {
                 expirationDate.setTime(expirationDate.getTime() + (days*24*60*60*1000));
                 document.cookie = `x-auth=${authToken}; expires=${expirationDate.toUTCString()}; path=/`
                 state.authToken = authToken;
+                init();
                 toggleLoginView();
             } else {
                 Promise.reject();
@@ -284,6 +285,18 @@ const submitLogin = (evt) => {
         .catch((err) => {
             console.log(err);
         });
+};
+
+const logout = () => {
+    console.log('perform logout');
+    document.cookie = `x-auth=; expires=; path=/`;
+    state.authToken = undefined;
+    state.activeNote = 0;
+    state.activeNotebook = 0;
+    state.noteList = undefined;
+    state.notebookList = undefined;
+
+    renderer.render(state);
 };
 
 function registerListeners() {
@@ -301,16 +314,24 @@ function registerListeners() {
     elements.markdownArea.addEventListener('dblclick', toggleEditView);
     elements.loginForm.addEventListener('submit', submitLogin);
     elements.loginBtn.addEventListener('click', toggleLoginView);
+    elements.logoutBtn.addEventListener('click', logout);
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
 }
 
-function initialize() {
-    registerListeners();
+function init() {
     initializeNotebookList().then((res) => {
         setItemActive();
         renderer.render(state);
     });
+}
+function initialize() {
+    registerListeners();
+    if (!state.authToken) {
+        toggleLoginView();
+    } else {
+        init();
+    }
 }
 
 const getCurrentNote = () => {
@@ -331,16 +352,24 @@ const getCurrentNotebook = () => {
 
 const getCookie = (name) => {
     return document.cookie.split(name + "=")[1];
+};
+
+function authHeaders() {
+    return {headers: {'x-auth': state.authToken}};
 }
 
-const state = {
-    activeNote: 0,
-    activeNotebook: 0,
-    activeTab: 0,
-    activeTabItem: 0,
-    inEditView: false,
-    authToken: getCookie('x-auth')
-};
+function newState() {
+    return {
+        activeNote: 0,
+        activeNotebook: 0,
+        activeTab: 0,
+        activeTabItem: 0,
+        inEditView: false,
+        authToken: getCookie('x-auth')
+    }
+}
+
+const state = newState();
 
 window.state = state;
 

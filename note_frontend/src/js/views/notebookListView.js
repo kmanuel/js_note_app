@@ -6,8 +6,10 @@ const renderNotebookListItem = (notebookItem, idx) => {
 };
 
 export const renderList = (notebooks) => {
-    elements.notebookList.innerHTML = '';
+    clearView();
     notebooks.forEach(renderNotebookListItem);
 };
 
-
+export const clearView = () => {
+    elements.notebookList.innerHTML = '';
+};

@@ -23,7 +23,7 @@ app.use(bodyParser.json());
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, DELETE, PUT, PATCH');
-    res.header('Access-Control-Allow-Headers', 'Origin, X-Request-With, Content-Type, Accept');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Request-With, Content-Type, Accept, x-auth');
     res.header('Access-Control-Expose-Headers', 'x-auth');
     next();
 });
@@ -120,9 +120,11 @@ app.post('/note', (req, res) => {
     }
 });
 
-app.get('/notebook', (req, res) => {
+app.get('/notebook', authenticate, (req, res) => {
     Notebook
-        .find()
+        .find({
+            creator: req.user._id
+        })
         .populate('notes')
         .then((doc) => res.send(doc))
         .catch((err) => sendError(res, err, 500));
@@ -147,11 +149,13 @@ app.get('/notebook/:notebookId', (req, res) => {
         })
 });
 
-app.post('/notebook', (req, res) => {
+app.post('/notebook', authenticate, (req, res) => {
     const notebook = {
         title: req.body.title,
-        notes: req.body.notes
+        notes: req.body.notes,
+        creator: req.user._id
     };
+    console.log('saving new notebook: ', notebook);
     new Notebook(notebook)
         .save()
         .then((doc) => {
@@ -163,7 +167,7 @@ app.post('/notebook', (req, res) => {
         });
 });
 
-app.put('/notebook/:id', (req, res) => {
+app.put('/notebook/:id', authenticate, (req, res) => {
     const notebook = req.body;
     const notebookId = req.params.id;
 
@@ -183,7 +187,7 @@ app.put('/notebook/:id', (req, res) => {
 
 });
 
-app.post('/notebook/:notebookId/note', (req, res) => {
+app.post('/notebook/:notebookId/note', authenticate, (req, res) => {
     const notebookId = req.params.notebookId;
 
     if (!ObjectID.isValid(notebookId)) {

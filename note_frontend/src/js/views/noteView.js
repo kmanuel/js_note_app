@@ -33,3 +33,10 @@ export const toggleMarkdown = () => {
     document.querySelectorAll('[data-tab-id="0"], [data-tab-id="1"]').forEach(e => e.classList.toggle('hidden'));
     elements.noteTitle.focus();
 };
+
+export const clearView = () => {
+    document.querySelector('.main-edit').classList.remove('hidden');
+    document.querySelector('.main-edit').classList.add('hidden');
+
+    displayNoNote();
+};

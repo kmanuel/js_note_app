@@ -1,6 +1,8 @@
 import * as noteListView from './views/noteListView';
 import * as noteView from './views/noteView';
 import * as notebookListView from './views/notebookListView';
+import {elements} from './views/base';
+
 
 const getCurrentNote = (state) => {
     let noteId = state.activeNote;
@@ -15,7 +17,9 @@ const getCurrentNote = (state) => {
 };
 
 const getCurrentNotebook = (state) => {
-    return state.notebookList.getNotebook(state.activeNotebook);
+    if (state.notebookList) {
+        return state.notebookList.getNotebook(state.activeNotebook);
+    }
 };
 
 export const render = (state) => {
@@ -67,11 +71,40 @@ export const render = (state) => {
         document.querySelector(`[data-tab-id='${activeTab}'] [data-tab-item-id='${activeTabItem}']`).classList.add('active-tab-item');
     };
 
-    renderNote();
-    renderNoteList();
-    renderNotebookList();
-    if (!state.inEditView) {
-        displayActiveTab();
+    const renderAuthState = () => {
+        if (state.authToken) {
+            elements.loginBtn.classList.remove('hidden');
+            elements.logoutBtn.classList.remove('hidden');
+
+            elements.loginBtn.classList.add('hidden');
+        } else {
+            elements.loginBtn.classList.remove('hidden');
+            elements.logoutBtn.classList.remove('hidden');
+
+            elements.logoutBtn.classList.add('hidden');
+        }
+    };
+
+    const clearAll = () => {
+        notebookListView.clearView();
+        noteListView.clearView();
+        noteView.clearView();
+    };
+
+    if (state.authToken) {
+        renderNote();
+        renderNoteList();
+        renderNotebookList();
+        if (!state.inEditView) {
+            displayActiveTab();
+        }
+        elements.saveRemoteBtn.classList.remove('hidden');
+    } else {
+        elements.saveRemoteBtn.classList.remove('hidden');
+        elements.saveRemoteBtn.classList.add('hidden');
+        clearAll();
     }
+
+    renderAuthState();
 };
 

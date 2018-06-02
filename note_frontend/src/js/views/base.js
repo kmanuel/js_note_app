@@ -12,6 +12,7 @@ export const elements = {
     markdownArea: document.querySelector('.main-markdown'),
     notebookList: document.querySelector('.notebook-list'),
     loginBtn: document.querySelector('#login-btn'),
+    logoutBtn: document.querySelector('#logout-btn'),
     loginForm: document.querySelector('#login-form'),
     loginEmailInput: document.querySelector('#login-email'),
     loginPasswordInput: document.querySelector('#login-password'),

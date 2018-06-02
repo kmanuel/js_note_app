@@ -11,7 +11,10 @@ const renderListItem = (item, idx) => `
 `;
 
 export const renderList = (notes) => {
-    elements.noteList.innerHTML = '';
-
+    clearView();
     notes.forEach((note, idx) => elements.noteList.insertAdjacentHTML('beforeend', renderListItem(note, idx)));
+};
+
+export const clearView = () => {
+    elements.noteList.innerHTML = '';
 };

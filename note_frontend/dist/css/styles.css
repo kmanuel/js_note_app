@@ -64,10 +64,6 @@ body {
     height: 100%;
 }
 
-.hidden {
-    display: none;
-}
-
 .main-markdown {
     flex: 1;
     background-color: #faf1d1;
@@ -149,9 +145,32 @@ body {
 }
 
 .login-view {
-    position: fixed;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     width: 100%;
     height: 100%;
     background-color: rgba(3, 3, 3, 0.6);
     z-index: 100;
+}
+
+.login-view form {
+    flex: 0 0 200px;
+    height: 200px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    background-color: #eee;
+}
+
+.login-view form > * {
+    flex: 1;
+}
+
+.login-view button {
+    margin-top: 20px;
+}
+
+.hidden {
+    display: none;
 }
