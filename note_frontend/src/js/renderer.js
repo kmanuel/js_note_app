@@ -77,11 +77,18 @@ export const render = (state) => {
         const activeTab = state.activeTab;
         const activeTabItem = state.activeTabItem;
 
-        document.querySelectorAll('[data-tab-id]').forEach(e => e.classList.remove('active-tab'));
-        document.querySelector(`[data-tab-id='${activeTab}`).classList.add('active-tab');
+        // document.querySelectorAll(`[data-tab-id]`).classList.forEach(e => e.remove('active-tab-item'));
 
-        document.querySelectorAll('[data-tab-item-id]').forEach(e => e.classList.remove('active-tab-item'));
-        document.querySelector(`[data-tab-id='${activeTab}'] [data-tab-item-id='${activeTabItem}']`).classList.add('active-tab-item');
+        document.querySelector(`[data-tab-id='${activeTab}']`).classList.add('active-tab');
+
+
+        if (activeTabItem !== -1) {
+            document.querySelectorAll('[data-tab-id]').forEach(e => e.classList.remove('active-tab-item'));
+            document.querySelectorAll('[data-tab-item-id]').forEach(e => e.classList.remove('active-tab-item'));
+            document.querySelector(`[data-tab-id='${activeTab}'] [data-tab-item-id='${activeTabItem}']`).classList.add('active-tab-item');
+        } else {
+            document.querySelector(`[data-tab-id='${activeTab}']`).classList.add('active-tab-item');
+        }
     };
 
     const renderAuthState = () => {
@@ -105,6 +112,21 @@ export const render = (state) => {
     };
 
     if (state.authToken) {
+        if (state.activeTab === 0) {
+            if (state.activeNotebook) {
+                state.activeTabItem = document.querySelector(`[data-id='${state.activeNotebook}']`).dataset.tabItemId;
+            }
+        } else if (state.activeTab === 1) {
+            if (state.activeNote && state.activeNote !== -1) {
+                const tabItem = document.querySelector(`[data-id='${state.activeNote}']`);
+                if (tabItem) {
+                    state.activeTabItem = tabItem.dataset.tabItemId;
+                }
+            }
+        }
+
+
+
         renderNote();
         renderNoteList();
         renderNotebookList();

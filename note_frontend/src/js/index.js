@@ -1,5 +1,4 @@
 import NotebookList from './models/NotebookList';
-import * as noteListView from './views/noteListView';
 import * as noteView from './views/noteView';
 import {elements} from './views/base';
 import axios from 'axios';
@@ -33,6 +32,8 @@ function setNoteActive(id) {
 const handleNoteClick = (evt) => {
     const id = evt.target.closest('.note-item').dataset.id;
     if (evt.target.matches('.note-item, .list-item-title ')) {
+        state.activeTab = 1;
+        state.activeTabItem = evt.target.closest('.note-item').dataset.tabItemId;
         setNoteActive(id);
     } else if (evt.target.closest('.delete-note')) {
         deleteNote(id);
@@ -52,7 +53,7 @@ const deleteNote = (id) => {
     state.notebookList.getNotebook(state.activeNotebook).deleteNote(id);
 
     if (state.activeNote === id) {
-        state.activeNote = undefined;
+        state.activeNote = state.notebookList.getNotebook(state.activeNotebook).getNotes()[0];
     }
 
     renderer.render(state);
@@ -98,6 +99,7 @@ function setNotebookActive(id) {
 
 const handleNotebookListClick = (evt) => {
     const id = evt.target.closest('.notebook-list-item').dataset.id;
+    state.activeTab = 0;
     if (id) {
         if (evt.target.matches('.notebook-list-item, .list-item-title ')) {
             setNotebookActive(id);
@@ -126,11 +128,13 @@ const updateMarkdown = () => {
 
 
 function setItemActive() {
-    const selectedItemId = document.querySelector(`[data-tab-id='${state.activeTab}'] [data-tab-item-id='${state.activeTabItem}']`).dataset.id;
-    if (state.activeTab === 0) {
-        setNotebookActive(selectedItemId);
-    } else if (state.activeTab === 1) {
-        setNoteActive(selectedItemId);
+    if (state.activeTabItem !== -1) {
+        const selectedItemId = document.querySelector(`[data-tab-id='${state.activeTab}'] [data-tab-item-id='${state.activeTabItem}']`).dataset.id;
+        if (state.activeTab === 0) {
+            setNotebookActive(selectedItemId);
+        } else if (state.activeTab === 1) {
+            setNoteActive(selectedItemId);
+        }
     }
 }
 
@@ -170,21 +174,25 @@ const handleKeyDown = (evt) => {
 
     const moveFocusRight = () => {
         const activeTab = state.activeTab;
-        state.activeTab = Math.min(2, activeTab + 1);
-        state.activeTabItem = 0;
+        state.activeTab = Math.min(1, activeTab + 1);
+        const itemsInTab = document.querySelectorAll(`[data-tab-id='${state.activeTab}'] [data-tab-item-id]`).length - 1;
+        state.activeTabItem = (itemsInTab > 0) ? 0 : -1;
         setItemActive();
         renderer.render(state);
     };
 
     const moveFocusDown = () => {
         const itemsInTab = document.querySelectorAll(`[data-tab-id='${state.activeTab}'] [data-tab-item-id]`).length - 1;
-        const increasedTabItem = state.activeTabItem + 1;
+        const increasedTabItem = parseInt(state.activeTabItem) + 1;
         state.activeTabItem = Math.min(itemsInTab, increasedTabItem);
         setItemActive();
         renderer.render(state);
     };
 
     const moveFocusUp = () => {
+        if (state.activeTabItem === -1) {
+            return;
+        }
         state.activeTabItem = Math.max(0, state.activeTabItem - 1);
         setItemActive();
         renderer.render(state);
@@ -203,7 +211,7 @@ const handleKeyDown = (evt) => {
         if (state.activeTab === 0) {
             deleteNotebook(state.activeNotebook);
         } else if (state.activeTab === 1) {
-
+            deleteNote(state.activeNote);
         }
     };
 
@@ -234,7 +242,7 @@ const handleKeyDown = (evt) => {
         insertElementInTab();
     }
     if (isKeyPressed(keys.delete)) {
-        keyPressState.pressed = kreyPressState.pressed.filter(key => key !== evt.keyCode);
+        keyPressState.pressed = keyPressState.pressed.filter(key => key !== evt.keyCode);
         deleteActiveTabElement();
     }
 };
