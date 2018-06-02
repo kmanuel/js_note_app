@@ -3,3 +3,6 @@
 **/*.iml
 **/bundle.js
 **/package-lock.json
+note_backend/package-lock.json
+**/*Docker*
+**/*docker*
