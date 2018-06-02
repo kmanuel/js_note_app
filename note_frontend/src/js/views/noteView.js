@@ -1,4 +1,4 @@
-import { elements } from './base';
+import {elements} from './base';
 import showdown from 'showdown';
 
 const converter = new showdown.Converter();
@@ -14,12 +14,9 @@ export const displayNote = (note) => {
 };
 
 export const displayNoNote = () => {
-    if (elements.noteTitle) {
-        elements.noteTitle.value = '';
-    }
-    if (elements.noteBody) {
-        elements.noteBody.value = '';
-    }
+    elements.noteTitle.value = '';
+    elements.noteBody.value = '';
+    renderNoteMarkdown();
 };
 
 export const renderNoteMarkdown = () => {

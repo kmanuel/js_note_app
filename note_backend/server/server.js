@@ -187,6 +187,24 @@ app.put('/notebook/:id', authenticate, (req, res) => {
 
 });
 
+app.delete('/notebook/:id', authenticate, (req, res) => {
+    const notebookId = req.params.id;
+
+    if (!ObjectID.isValid(notebookId)) {
+        res.sendStatus(404);
+        return;
+    }
+
+    Notebook
+        .findOneAndRemove({
+            _id: notebookId,
+            creator: req.user._id
+        })
+        .then((doc) => res.send(doc))
+        .catch((err) => sendError(res, err, 500));
+
+});
+
 app.post('/notebook/:notebookId/note', authenticate, (req, res) => {
     const notebookId = req.params.notebookId;
 

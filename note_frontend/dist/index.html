@@ -13,29 +13,44 @@
 <body>
 
 
+<div class="login-view hidden">
+    <form id="login-form">
+        <label for="login-email">Email: </label>
+        <input id="login-email" type="text">
+
+        <label for="login-password">Password: </label>
+        <input id="login-password" type="password">
+
+        <button>Login</button>
+    </form>
+</div>
+
 <header class="header">
     <h1>Noteapp</h1>
     <span class="header-buttons">
-        <button class="save-remote"><i class="fas fa-upload"></i></button>
+        <button class="save-remote hidden"><i class="fas fa-upload"></i></button>
     </span>
-    <span>
-        <button id="login">Login</button>
+    <span class="auth-span">
+        <button id="login-btn" class="hidden">Login</button>
+        <button id="logout-btn" class="hidden">Logout</button>
     </span>
 </header>
 <div class="content">
-    <aside class="side">
-        <h2>Notebooks</h2>
+    <aside class="side" data-tab-id="0">
+        <h2>Notebooks
+            <button id="add-notebook-btn"><i class="fas fa-plus-square"></i></button>
+        </h2>
         <ul class="notebook-list">
         </ul>
     </aside>
-    <aside class="side">
+    <aside class="side" data-tab-id="1">
         <h2>Notes
             <button id="add-note-btn"><i class="fas fa-plus-square"></i></button>
         </h2>
         <ul class="note-list">
         </ul>
     </aside>
-    <div class="main">
+    <div class="main" data-tab-id="2">
         <div class="main-markdown">
             <div class="markdown-body"></div>
         </div>

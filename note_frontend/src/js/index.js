@@ -34,7 +34,7 @@ const handleNoteClick = (evt) => {
     const id = evt.target.closest('.note-item').dataset.id;
     if (evt.target.matches('.note-item, .list-item-title ')) {
         setNoteActive(id);
-    } else if (evt.target.matches('.delete-note')) {
+    } else if (evt.target.closest('.delete-note')) {
         deleteNote(id);
     }
 };
@@ -49,13 +49,12 @@ const saveCurrentNote = () => {
 const deleteNote = (id) => {
     axios.delete(`http://localhost:3000/note/${id}`, authHeaders());
 
-    state.notebookList.deleteNote(id);
+    state.notebookList.getNotebook(state.activeNotebook).deleteNote(id);
 
     if (state.activeNote === id) {
         state.activeNote = undefined;
     }
 
-    noteListView.renderList(state.notebookList);
     renderer.render(state);
 };
 /**
@@ -81,9 +80,11 @@ const deleteNotebook = () => {
     const activeNotebook = state.notebookList.getNotebook(state.activeNotebook);
     activeNotebook.getNotes().forEach(n => deleteNote(n._id));
 
-    axios.delete(`http://localhost:3000/notebook/${notebook._id}`, authHeaders())
+    axios.delete(`http://localhost:3000/notebook/${activeNotebook._id}`, authHeaders())
         .then((res) => {
-            renderer.render(this.state);
+            state.notebookList.deleteNotebook(activeNotebook._id)
+
+            renderer.render(state);
         })
         .catch((err) => {
             console.log(err);
@@ -92,14 +93,18 @@ const deleteNotebook = () => {
 
 function setNotebookActive(id) {
     state.activeNotebook = id;
-    state.noteList = state.notebookList.getNotebook(state.activeNotebook).getNotes();
     renderer.render(state);
 }
 
 const handleNotebookListClick = (evt) => {
     const id = evt.target.closest('.notebook-list-item').dataset.id;
     if (id) {
-        setNotebookActive(id);
+        if (evt.target.matches('.notebook-list-item, .list-item-title ')) {
+            setNotebookActive(id);
+        } else if (evt.target.closest('.delete-notebook')) {
+            setNotebookActive(id);
+            deleteNotebook();
+        }
     }
 };
 
@@ -293,7 +298,6 @@ const logout = () => {
     state.authToken = undefined;
     state.activeNote = 0;
     state.activeNotebook = 0;
-    state.noteList = undefined;
     state.notebookList = undefined;
 
     renderer.render(state);

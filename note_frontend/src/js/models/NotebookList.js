@@ -37,7 +37,10 @@ export default class NotebookList {
                 body: ''
             };
             const notebook = new Notebook(localNotebookDto);
-            return await axios.post(`${backendUrl}/notebook`, notebook, { headers: {'x-auth': this.authToken}});
+            const response = await axios.post(`${backendUrl}/notebook`, notebook, { headers: {'x-auth': this.authToken}});
+            const newNotebook = new Notebook(response.data);
+            this.notebooks.push(newNotebook);
+            return newNotebook;
         } catch (err) {
             console.log(err);
         }
@@ -55,9 +58,10 @@ export default class NotebookList {
         return this.notebooks;
     }
 
-    static deleteNotebook(notebookId) {
+    async deleteNotebook(notebookId) {
         try {
             axios.delete(`${backendUrl}/notebook/${notebookId}`);
+            this.notebooks = this.notebooks.filter(n => n._id !== notebookId);
         } catch (err) {
             console.log(err);
         }

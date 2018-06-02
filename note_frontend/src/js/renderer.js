@@ -37,6 +37,8 @@ export const render = (state) => {
             if (activeNoteItem) {
                 activeNoteItem.classList.add('active');
             }
+        } else {
+            noteView.displayNoNote();
         }
     }
 
@@ -55,9 +57,20 @@ export const render = (state) => {
     }
 
     function renderNoteList() {
-        if (state.noteList) {
-            noteListView.renderList(state.noteList);
+        let notebookList = state.notebookList;
+        if (!notebookList) {
+            return;
         }
+        let activeNotebook = notebookList.getNotebook(state.activeNotebook);
+        if (!activeNotebook) {
+            return;
+        }
+
+        const notes = activeNotebook.getNotes();
+        if (!notes) {
+            return;
+        }
+        noteListView.renderList(notes);
     }
 
     const displayActiveTab = () => {
