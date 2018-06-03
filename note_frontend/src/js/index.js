@@ -48,12 +48,30 @@ const saveCurrentNote = () => {
 };
 
 const deleteNote = (id) => {
+    if (!id) {
+        return;
+    }
+
     axios.delete(`http://localhost:3000/note/${id}`, authHeaders());
 
     state.notebookList.getNotebook(state.activeNotebook).deleteNote(id);
 
     if (state.activeNote === id) {
-        state.activeNote = state.notebookList.getNotebook(state.activeNotebook).getNotes()[0];
+        const noteTabItemId = parseInt(document.querySelector(`[data-id='${id}']`).dataset.tabItemId);
+
+        const noteBelowTabId = noteTabItemId - 1;
+        let noteBelow = state.notebookList.getNotebook(state.activeNotebook).getNotes()[noteBelowTabId];
+
+        const noteAboveTabId = noteTabItemId + 1;
+        let noteAbove = state.notebookList.getNotebook(state.activeNotebook).getNotes()[noteAboveTabId];
+
+        if (noteBelow) {
+            state.activeNote = noteBelow._id;
+        } else if (noteAbove) {
+            state.activeNote = noteAbove._id;
+        } else {
+            state.activeNote = undefined;
+        }
     }
 
     renderer.render(state);

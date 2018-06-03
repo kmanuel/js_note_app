@@ -84,6 +84,8 @@ export const render = (state) => {
                 if (tabItem) {
                     state.activeTabItem = tabItem.dataset.tabItemId;
                 }
+            } else {
+                state.activeTabItem = -1;
             }
         }
 
