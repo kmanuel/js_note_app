@@ -20,7 +20,9 @@ body {
     justify-content: center;
     background-color: #F8ECC2;
     height: 50px;
-    border-bottom: 3px solid #333;
+    border-bottom: 3px solid #555;
+    border-bottom-right-radius: 3px;
+    border-bottom-left-radius: 3px;
 }
 
 .header > * {
@@ -48,14 +50,36 @@ body {
     display: flex;
     background-color: yellow;
     height: calc(100% - 50px);
+    border-radius: 1px;
 }
 
 .side {
     flex: 0 0 200px;
     background-color: #F8ECC2;
     overflow: hidden;
-    padding: 5px 15px;
-    border-right: 2px solid #333
+    border-right: 2px solid #555;
+    border-radius: 1px;
+}
+
+.list-heading {
+    position: relative;
+    padding: 0 15px;
+    margin: 10px 3px 25px;
+}
+
+.add-new-btn {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 35px;
+    height: 35px;
+    font-size: 1em;
+    border: none;
+    background-color: rgba(0, 255, 0, 0.3);
+}
+
+.add-new-btn:hover {
+    background-color: rgba(80, 255, 80, 1);
 }
 
 .main-edit {
@@ -114,14 +138,31 @@ body {
     padding: 0;
 }
 
-.note-item, .notebook-list-item {
+.list-item {
+    position: relative;
     display: block;
-    border: 1px solid black;
     list-style: none;
-    margin-top: 5px;
-    height: 30px;
+    height: 80px;
     overflow: hidden;
+    padding: 15px;
     background-color: #DFD3A9;
+    margin: 3px;
+    border-radius: 3px;
+}
+
+.delete-item-btn {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 35px;
+    height: 35px;
+    font-size: 1.5em;
+    border: none;
+    background-color: rgba(255, 0, 0, 0.3);
+}
+
+.delete-item-btn:hover {
+    background-color: rgba(255, 80, 80, 1);
 }
 
 .note-item.active, .notebook-list-item.active {
@@ -137,7 +178,7 @@ body {
 }
 
 .active-tab-item {
-    border: 3px solid green;
+    background-color: #FFFFDC;
 }
 
 .note-item:hover {
