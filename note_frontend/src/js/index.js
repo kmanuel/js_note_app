@@ -94,7 +94,6 @@ const deleteNotebook = () => {
 
 function setNotebookActive(id) {
     state.activeNotebook = id;
-    renderer.render(state);
 }
 
 const handleNotebookListClick = (evt) => {

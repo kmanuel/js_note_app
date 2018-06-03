@@ -74,6 +74,19 @@ export const render = (state) => {
     }
 
     const displayActiveTab = () => {
+        if (state.activeTab === 0) {
+            if (state.activeNotebook) {
+                state.activeTabItem = document.querySelector(`[data-id='${state.activeNotebook}']`).dataset.tabItemId;
+            }
+        } else if (state.activeTab === 1) {
+            if (state.activeNote && state.activeNote !== -1) {
+                const tabItem = document.querySelector(`[data-id='${state.activeNote}']`);
+                if (tabItem) {
+                    state.activeTabItem = tabItem.dataset.tabItemId;
+                }
+            }
+        }
+
         const activeTab = state.activeTab;
         const activeTabItem = state.activeTabItem;
 
@@ -112,21 +125,6 @@ export const render = (state) => {
     };
 
     if (state.authToken) {
-        if (state.activeTab === 0) {
-            if (state.activeNotebook) {
-                state.activeTabItem = document.querySelector(`[data-id='${state.activeNotebook}']`).dataset.tabItemId;
-            }
-        } else if (state.activeTab === 1) {
-            if (state.activeNote && state.activeNote !== -1) {
-                const tabItem = document.querySelector(`[data-id='${state.activeNote}']`);
-                if (tabItem) {
-                    state.activeTabItem = tabItem.dataset.tabItemId;
-                }
-            }
-        }
-
-
-
         renderNote();
         renderNoteList();
         renderNotebookList();
