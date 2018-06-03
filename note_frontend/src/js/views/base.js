@@ -8,14 +8,18 @@ export const elements = {
     markdownToggle: document.querySelector('.input-markdown-toggle'),
     markdownBody: document.querySelector('.markdown-body'),
     noteItems: document.querySelectorAll('.note-item'),
-    loadRemoteBtn: document.querySelector('.load-remote'),
     saveRemoteBtn: document.querySelector('.save-remote'),
     markdownArea: document.querySelector('.main-markdown'),
     notebookList: document.querySelector('.notebook-list'),
     loginBtn: document.querySelector('#login-btn'),
     logoutBtn: document.querySelector('#logout-btn'),
+    /** login form **/
     loginForm: document.querySelector('#login-form'),
     loginEmailInput: document.querySelector('#login-email'),
     loginPasswordInput: document.querySelector('#login-password'),
+    /** register form **/
+    registerForm: document.querySelector('#register-form'),
+    registerEmailInput: document.querySelector('#register-email'),
+    registerPasswordInput: document.querySelector('#register-password'),
     loginView: document.querySelector('.login-view'),
 };

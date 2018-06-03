@@ -14,14 +14,25 @@
 
 
 <div class="login-view hidden">
-    <form id="login-form">
+    <form id="login-form" class="login-view-form">
         <label for="login-email">Email: </label>
         <input id="login-email" type="text">
 
         <label for="login-password">Password: </label>
         <input id="login-password" type="password">
 
-        <button>Login</button>
+        <button value="login">Login</button>
+        <span>No Account? <a id="register-link" href="#">Register</a></span>
+    </form>
+    <form id="register-form" class="login-view-form hidden">
+        <label for="register-email">Email: </label>
+        <input id="register-email" type="text">
+
+        <label for="register-password">Password: </label>
+        <input id="register-password" type="password">
+
+        <button>Register</button>
+        <span>Already Account? <a id="login-link" href="#">Login</a></span>
     </form>
 </div>
 

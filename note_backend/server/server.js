@@ -262,10 +262,7 @@ app.post('/user/token', (req, res) => {
     User.findOne({
         email
     }).then((user) => {
-        console.log('checking if pw matches');
-        user.passwordMatches(password);
-        console.log('result is ', user);
-        return user;
+        return user.passwordMatches(password);
     }).then((user) => {
         return user.generateAuthToken();
     }).then((token) => {

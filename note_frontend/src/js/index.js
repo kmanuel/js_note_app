@@ -300,6 +300,35 @@ const submitLogin = (evt) => {
         });
 };
 
+const submitRegister = (evt) => {
+    evt.preventDefault();
+
+    const email = elements.registerEmailInput.value;
+    const password = elements.registerPasswordInput.value;
+
+    const registerRequest = { email, password };
+
+    axios
+        .post('http://localhost:3000/user', registerRequest, authHeaders())
+        .then((res) => {
+            const authToken = res.headers['x-auth'];
+            if (authToken) {
+                const expirationDate = new Date();
+                const days = 1;
+                expirationDate.setTime(expirationDate.getTime() + (days*24*60*60*1000));
+                document.cookie = `x-auth=${authToken}; expires=${expirationDate.toUTCString()}; path=/`
+                state.authToken = authToken;
+                init();
+                toggleLoginView();
+            } else {
+                Promise.reject();
+            }
+        })
+        .catch((err) => {
+            console.log(err);
+        });
+};
+
 const logout = () => {
     console.log('perform logout');
     document.cookie = `x-auth=; expires=; path=/`;
@@ -309,6 +338,10 @@ const logout = () => {
     state.notebookList = undefined;
 
     renderer.render(state);
+};
+
+const toggleRegisterLogin = () => {
+    document.querySelectorAll('#login-link, #register-link').forEach(e => e.closest('form').classList.toggle('hidden'));
 };
 
 function registerListeners() {
@@ -325,8 +358,10 @@ function registerListeners() {
     elements.saveRemoteBtn.addEventListener('click', saveRemote);
     elements.markdownArea.addEventListener('dblclick', toggleEditView);
     elements.loginForm.addEventListener('submit', submitLogin);
+    elements.registerForm.addEventListener('submit', submitRegister);
     elements.loginBtn.addEventListener('click', toggleLoginView);
     elements.logoutBtn.addEventListener('click', logout);
+    document.querySelectorAll('#login-link, #register-link').forEach(e => e.addEventListener('click', toggleRegisterLogin));
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
 }

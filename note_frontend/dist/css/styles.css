@@ -154,7 +154,7 @@ body {
     z-index: 100;
 }
 
-.login-view form {
+.login-view-form {
     flex: 0 0 200px;
     height: 200px;
     padding: 15px;

@@ -38,14 +38,25 @@ UserSchema.methods.toJSON = function () {
 
 UserSchema.methods.passwordMatches = function (password) {
     var user = this;
-    return bcrypt.compare(password, user.password, (err, res) => {
-        if (res) {
-            return user;
-        } else {
-            return Promise.reject();
+    return new Promise((resolve, reject) => {
+        try {
+            console.log('comparing if pw match');
+            bcrypt.compare(password, user.password, (err, res) => {
+                console.log('res: ', res);
+                if (res) {
+                    console.log('we have a match!');
+                    resolve(user);
+                } else {
+                    console.log('no match!');
+                    reject();
+                }
+            });
+        } catch (err) {
+            console.log('OMG erro!', err);
+            reject(err);
         }
     });
-}
+};
 
 UserSchema.methods.generateAuthToken = async function () {
     var user = this;
