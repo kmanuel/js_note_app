@@ -4,5 +4,5 @@
 **/bundle.js
 **/package-lock.json
 note_backend/package-lock.json
-**/*Docker*
-**/*docker*
+**/dist/**
+note_frontend/dist/index.html

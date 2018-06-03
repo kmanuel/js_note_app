@@ -1,0 +1,19 @@
+version: '2.0'
+
+services:
+  mongo:
+    image: mongo
+    restart: always
+    ports:
+      - 27017:27017
+    network_mode: "host"
+  node-frontend:
+    build: ./note_frontend
+    ports:
+      - 80:80
+    network_mode: "host"
+  note-backend:
+    build: ./note_backend
+    ports:
+      - 3000:3000
+    network_mode: "host"
