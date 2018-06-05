@@ -18,7 +18,7 @@ const getCurrentNote = (state) => {
 
 const getCurrentNotebook = (state) => {
     if (state.notebookList) {
-        return state.notebookList.getNotebook(state.activeNotebook);
+        return state.getActiveNotebook();
     }
 };
 
@@ -134,6 +134,8 @@ export const render = (state) => {
             displayActiveTab();
         }
         elements.saveRemoteBtn.classList.remove('hidden');
+
+        noteView.toggleMarkdown(state.inEditView);
     } else {
         elements.saveRemoteBtn.classList.remove('hidden');
         elements.saveRemoteBtn.classList.add('hidden');

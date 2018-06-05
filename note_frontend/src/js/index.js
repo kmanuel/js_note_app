@@ -4,17 +4,11 @@ import {elements} from './views/base';
 import axios from 'axios';
 import * as renderer from './renderer';
 
-
-async function initializeNotebookList() {
-    state.notebookList = await new NotebookList(state.authToken);
-    renderer.render(state);
-}
-
 /**
  * Note
  */
 const addNote = () => {
-    getCurrentNotebook().addNote('title', 'body')
+    state.getActiveNotebook().addNote('title', 'body')
         .then((newNote) => {
             state.activeNote = newNote._id;
             renderer.render(state);
@@ -33,7 +27,7 @@ const handleNoteClick = (evt) => {
     const id = evt.target.closest('.note-item').dataset.id;
     if (evt.target.matches('.note-item, .list-item-title ')) {
         state.activeTab = 1;
-        state.activeTabItem = evt.target.closest('.note-item').dataset.tabItemId;
+        state.activeTabItem = evt.target.closest('.note-item').dataset.tabItemId; // TODO tied to dom. bad!
         setNoteActive(id);
     } else if (evt.target.closest('.delete-note')) {
         deleteNote(id);
@@ -43,7 +37,7 @@ const handleNoteClick = (evt) => {
 const saveCurrentNote = () => {
     const newTitle = elements.noteTitle.value;
     const newBody = elements.noteBody.value;
-    getCurrentNotebook().udpateNote(state.activeNote, newTitle, newBody);
+    state.getActiveNotebook().udpateNote(state.activeNote, newTitle, newBody);
     renderer.render(state);
 };
 
@@ -54,16 +48,16 @@ const deleteNote = (id) => {
 
     axios.delete(`http://localhost:3000/note/${id}`, authHeaders());
 
-    state.notebookList.getNotebook(state.activeNotebook).deleteNote(id);
+    state.getActiveNotebook().deleteNote(id);
 
     if (state.activeNote === id) {
-        const noteTabItemId = parseInt(document.querySelector(`[data-id='${id}']`).dataset.tabItemId);
+        const noteTabItemId = parseInt(document.querySelector(`[data-id='${id}']`).dataset.tabItemId); // TODO tied to dom. bad!
 
         const noteBelowTabId = noteTabItemId - 1;
-        let noteBelow = state.notebookList.getNotebook(state.activeNotebook).getNotes()[noteBelowTabId];
+        let noteBelow = state.getNotesForCurrentNotebook()[noteBelowTabId];
 
         const noteAboveTabId = noteTabItemId + 1;
-        let noteAbove = state.notebookList.getNotebook(state.activeNotebook).getNotes()[noteAboveTabId];
+        let noteAbove = state.getNotesForCurrentNotebook()[noteAboveTabId];
 
         if (noteBelow) {
             state.activeNote = noteBelow._id;
@@ -76,10 +70,10 @@ const deleteNote = (id) => {
 
     renderer.render(state);
 };
+
 /**
  * Notebook
  */
-
 const addNotebook = () => {
     const notebookTitle = window.prompt('Enter a title for the new notebook!');
 
@@ -96,13 +90,12 @@ const addNotebook = () => {
 };
 
 const deleteNotebook = () => {
-    const activeNotebook = state.notebookList.getNotebook(state.activeNotebook);
-    activeNotebook.getNotes().forEach(n => deleteNote(n._id));
+    state.getNotesForCurrentNotebook().forEach(n => deleteNote(n._id));
 
-    axios.delete(`http://localhost:3000/notebook/${activeNotebook._id}`, authHeaders())
-        .then((res) => {
-            state.notebookList.deleteNotebook(activeNotebook._id)
-
+    axios
+        .delete(`http://localhost:3000/notebook/${state.getActiveNotebook()._id}`, authHeaders())
+        .then(() => {
+            state.notebookList.deleteNotebook(state.getActiveNotebook()._id);
             renderer.render(state);
         })
         .catch((err) => {
@@ -125,6 +118,7 @@ const handleNotebookListClick = (evt) => {
             deleteNotebook();
         }
     }
+    renderer.render(state);
 };
 
 const saveRemote = () => {
@@ -139,21 +133,13 @@ const saveRemote = () => {
  */
 
 const updateMarkdown = () => {
-    const currentNote = getCurrentNote();
-    noteView.renderNoteMarkdown(currentNote);
+    noteView.renderNoteMarkdown(state.getActiveNote());
 };
 
-
-function setItemActive() {
-    if (state.activeTabItem !== -1) {
-        const selectedItemId = document.querySelector(`[data-tab-id='${state.activeTab}'] [data-tab-item-id='${state.activeTabItem}']`).dataset.id;
-        if (state.activeTab === 0) {
-            setNotebookActive(selectedItemId);
-        } else if (state.activeTab === 1) {
-            setNoteActive(selectedItemId);
-        }
-    }
-}
+const toggleEditView = () => {
+    state.inEditView = !state.inEditView;
+    renderer.render(state);
+};
 
 /**
  * Shortcuts
@@ -177,29 +163,41 @@ const keys = {
 };
 
 const handleKeyDown = (evt) => {
+    function setItemActive() {
+        if (state.activeTabItem !== -1) {
+            const selectedItemId = document.querySelector(`[data-tab-id='${state.activeTab}'] [data-tab-item-id='${state.activeTabItem}']`).dataset.id; // TODO tied to dom. bad!
+            if (state.activeTab === 0) {
+                setNotebookActive(selectedItemId);
+            } else if (state.activeTab === 1) {
+                setNoteActive(selectedItemId);
+            }
+        }
+    }
+
     function isKeyPressed(code) {
         return keyPressState.pressed.indexOf(code) != -1;
     }
 
     const moveFocusLeft = () => {
-        const activeTab = state.activeTab;
-        state.activeTab = Math.max(0, activeTab - 1);
-        state.activeTabItem = 0;
-        setItemActive();
+        state.activeTab = 0;
+        const firstNotebook = state.notebookList.getNotebooks()[0];
+        if (firstNotebook) {
+            state.activeNotebook = firstNotebook._id;
+        }
         renderer.render(state);
     };
 
     const moveFocusRight = () => {
-        const activeTab = state.activeTab;
-        state.activeTab = Math.min(1, activeTab + 1);
-        const itemsInTab = document.querySelectorAll(`[data-tab-id='${state.activeTab}'] [data-tab-item-id]`).length - 1;
-        state.activeTabItem = (itemsInTab > 0) ? 0 : -1;
-        setItemActive();
+        state.activeTab = 1;
+        const firstNote = state.getActiveNotebook().getNotes()[0];
+        if (firstNote) {
+            state.activeNote = firstNote._id;
+        }
         renderer.render(state);
     };
 
     const moveFocusDown = () => {
-        const itemsInTab = document.querySelectorAll(`[data-tab-id='${state.activeTab}'] [data-tab-item-id]`).length - 1;
+        const itemsInTab = document.querySelectorAll(`[data-tab-id='${state.activeTab}'] [data-tab-item-id]`).length - 1; // TODO tied to dom. bad!
         const increasedTabItem = parseInt(state.activeTabItem) + 1;
         state.activeTabItem = Math.min(itemsInTab, increasedTabItem);
         setItemActive();
@@ -265,16 +263,7 @@ const handleKeyDown = (evt) => {
 };
 
 const handleKeyUp = (evt) => {
-    if (evt.keyCode === keys.enter || evt.keyCode === keys.ctrl) {
-        keyPressState.switchLock = false;
-    }
     keyPressState.pressed = keyPressState.pressed.filter(key => key !== evt.keyCode);
-};
-
-const toggleEditView = () => {
-    state.inEditView = !state.inEditView;
-    noteView.toggleMarkdown();
-    renderer.render(state);
 };
 
 
@@ -303,10 +292,10 @@ const submitLogin = (evt) => {
             if (authToken) {
                 const expirationDate = new Date();
                 const days = 1;
-                expirationDate.setTime(expirationDate.getTime() + (days*24*60*60*1000));
-                document.cookie = `x-auth=${authToken}; expires=${expirationDate.toUTCString()}; path=/`
+                expirationDate.setTime(expirationDate.getTime() + (days * 24 * 60 * 60 * 1000));
+                document.cookie = `x-auth=${authToken}; expires=${expirationDate.toUTCString()}; path=/`;
                 state.authToken = authToken;
-                init();
+                initializeNoteItems();
                 toggleLoginView();
             } else {
                 Promise.reject();
@@ -323,7 +312,7 @@ const submitRegister = (evt) => {
     const email = elements.registerEmailInput.value;
     const password = elements.registerPasswordInput.value;
 
-    const registerRequest = { email, password };
+    const registerRequest = {email, password};
 
     axios
         .post('http://localhost:3000/user', registerRequest, authHeaders())
@@ -332,10 +321,10 @@ const submitRegister = (evt) => {
             if (authToken) {
                 const expirationDate = new Date();
                 const days = 1;
-                expirationDate.setTime(expirationDate.getTime() + (days*24*60*60*1000));
-                document.cookie = `x-auth=${authToken}; expires=${expirationDate.toUTCString()}; path=/`
+                expirationDate.setTime(expirationDate.getTime() + (days * 24 * 60 * 60 * 1000));
+                document.cookie = `x-auth=${authToken}; expires=${expirationDate.toUTCString()}; path=/`;
                 state.authToken = authToken;
-                init();
+                initializeNoteItems();
                 toggleLoginView();
             } else {
                 Promise.reject();
@@ -358,61 +347,52 @@ const logout = () => {
 };
 
 const toggleRegisterLogin = () => {
-    document.querySelectorAll('#login-link, #register-link').forEach(e => e.closest('form').classList.toggle('hidden'));
+    document.querySelectorAll('#login-link, #register-link').forEach(e => e.closest('form').classList.toggle('hidden')); // TODO tied to dom. bad!
 };
 
-function registerListeners() {
-    elements.addNoteBtn.addEventListener('click', addNote);
-    elements.addNotebookBtn.addEventListener('click', addNotebook);
-    elements.noteList.addEventListener('click', handleNoteClick);
-    elements.notebookList.addEventListener('click', handleNotebookListClick);
-    elements.noteTitle.addEventListener('blur', saveCurrentNote);
-    elements.noteTitle.addEventListener('keyup', saveCurrentNote);
-    elements.noteBody.addEventListener('blur', saveCurrentNote);
-    elements.noteBody.addEventListener('keyup', saveCurrentNote);
-    elements.noteTitle.addEventListener('keyup', updateMarkdown);
-    elements.noteBody.addEventListener('keyup', updateMarkdown);
-    elements.saveRemoteBtn.addEventListener('click', saveRemote);
-    elements.markdownArea.addEventListener('dblclick', toggleEditView);
-    elements.loginForm.addEventListener('submit', submitLogin);
-    elements.registerForm.addEventListener('submit', submitRegister);
-    elements.loginBtn.addEventListener('click', toggleLoginView);
-    elements.logoutBtn.addEventListener('click', logout);
-    document.querySelectorAll('#login-link, #register-link').forEach(e => e.addEventListener('click', toggleRegisterLogin));
-    window.addEventListener('keydown', handleKeyDown);
-    window.addEventListener('keyup', handleKeyUp);
-}
 
-function init() {
-    initializeNotebookList().then((res) => {
-        setItemActive();
-        renderer.render(state);
-    });
-}
 function initialize() {
+    function registerListeners() {
+        elements.addNoteBtn.addEventListener('click', addNote);
+        elements.addNotebookBtn.addEventListener('click', addNotebook);
+        elements.noteList.addEventListener('click', handleNoteClick);
+        elements.notebookList.addEventListener('click', handleNotebookListClick);
+        elements.noteTitle.addEventListener('blur', saveCurrentNote);
+        elements.noteTitle.addEventListener('keyup', saveCurrentNote);
+        elements.noteBody.addEventListener('blur', saveCurrentNote);
+        elements.noteBody.addEventListener('keyup', saveCurrentNote);
+        elements.noteTitle.addEventListener('keyup', updateMarkdown);
+        elements.noteBody.addEventListener('keyup', updateMarkdown);
+        elements.saveRemoteBtn.addEventListener('click', saveRemote);
+        elements.markdownArea.addEventListener('dblclick', toggleEditView);
+        elements.loginForm.addEventListener('submit', submitLogin);
+        elements.registerForm.addEventListener('submit', submitRegister);
+        elements.loginBtn.addEventListener('click', toggleLoginView);
+        elements.logoutBtn.addEventListener('click', logout);
+        document.querySelectorAll('#login-link, #register-link').forEach(e => e.addEventListener('click', toggleRegisterLogin));
+        window.addEventListener('keydown', handleKeyDown);
+        window.addEventListener('keyup', handleKeyUp);
+    }
+
+    function initializeNoteItems() {
+        async function initializeNotebookList() {
+            state.notebookList = await new NotebookList(state.authToken);
+        }
+
+        initializeNotebookList().then(() => {
+            state.activeTab = 0;
+            state.activeTabItem = 0;
+            renderer.render(state);
+        });
+    }
+
     registerListeners();
     if (!state.authToken) {
         toggleLoginView();
     } else {
-        init();
+        initializeNoteItems();
     }
 }
-
-const getCurrentNote = () => {
-    let noteId = state.activeNote;
-    const currentNotebook = getCurrentNotebook();
-    if (currentNotebook) {
-        for (let note of currentNotebook.getNotes()) {
-            if (note._id === noteId) {
-                return note;
-            }
-        }
-    }
-};
-
-const getCurrentNotebook = () => {
-    return state.notebookList.getNotebook(state.activeNotebook);
-};
 
 const getCookie = (name) => {
     return document.cookie.split(name + "=")[1];
@@ -429,7 +409,28 @@ function newState() {
         activeTab: 0,
         activeTabItem: 0,
         inEditView: false,
-        authToken: getCookie('x-auth')
+        authToken: getCookie('x-auth'),
+        getActiveNotebook: function () {
+            return this.notebookList.getNotebook(this.activeNotebook);
+        },
+        getActiveNote: function () {
+            let noteId = this.activeNote;
+            const currentNotebook = this.getActiveNotebook();
+            if (currentNotebook) {
+                for (let note of currentNotebook.getNotes()) {
+                    if (note._id === noteId) {
+                        return note;
+                    }
+                }
+            }
+        },
+        getNotesForCurrentNotebook: function () {
+            return this.getActiveNotebook().getNotes();
+        },
+        reset: function () {
+            // TODO reset state here
+        }
+
     }
 }
 

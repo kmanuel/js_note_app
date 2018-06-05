@@ -25,10 +25,21 @@ export const renderNoteMarkdown = () => {
     elements.markdownBody.innerHTML = html;
 };
 
-export const toggleMarkdown = () => {
-    document.querySelector('.main-edit').classList.toggle('hidden');
-    document.querySelectorAll('[data-tab-id="0"], [data-tab-id="1"]').forEach(e => e.classList.toggle('hidden'));
-    elements.noteTitle.focus();
+export const toggleMarkdown = (isShown) => {
+    const editElement = document.querySelector('.main-edit');
+    const sideTabs = document.querySelectorAll('[data-tab-id="0"], [data-tab-id="1"]');
+    if (isShown) {
+        if (editElement.classList.contains('hidden')) {
+            editElement.classList.remove('hidden');
+            elements.noteTitle.focus();
+        }
+        sideTabs.forEach(e => e.classList.remove('hidden'));
+        sideTabs.forEach(e => e.classList.add('hidden'));
+    } else {
+        editElement.classList.remove('hidden');
+        editElement.classList.add('hidden');
+        sideTabs.forEach(e => e.classList.remove('hidden'));
+    }
 };
 
 export const clearView = () => {
