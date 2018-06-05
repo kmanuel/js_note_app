@@ -6,3 +6,4 @@
 note_backend/package-lock.json
 **/dist/**
 note_frontend/dist/index.html
+note_frontend/dist/js/bundle.js
